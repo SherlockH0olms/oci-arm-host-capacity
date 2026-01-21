@@ -3,22 +3,28 @@ name: Oracle ARM Hunter
 on:
   workflow_dispatch:
   schedule:
-    - cron: '*/30 * * * *' # 30 dakikada bir otomatik çalışır
+    - cron: '*/30 * * * *' 
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4 # En güncel checkout sürümü
+        uses: actions/checkout@v4
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.3' # Güncel PHP sürümü
+          php-version: '8.3'
 
       - name: Install Dependencies
-        run: composer install --no-dev # Bağımlılıkların yüklenmesi zorunludur
+        run: composer install --no-dev
+
+      # Anahtar metnini gerçek bir .pem dosyasına dönüştüren kritik adım
+      - name: Create Private Key File
+        run: |
+          echo "${{ secrets.OCI_PRIVATE_KEY }}" > private_key.pem
+          chmod 600 private_key.pem
 
       - name: Run Script
         run: php index.php
@@ -27,9 +33,8 @@ jobs:
           OCI_USER_ID: ${{ secrets.OCI_USER_OCID }}
           OCI_TENANCY_ID: ${{ secrets.OCI_TENANCY_OCID }}
           OCI_KEY_FINGERPRINT: ${{ secrets.OCI_FINGERPRINT }}
-          # Hataları önlemek için hem içerik hem dosya adı değişkenlerini aynı anda gönderiyoruz
-          OCI_PRIVATE_KEY_CONTENTS: ${{ secrets.OCI_PRIVATE_KEY }} 
-          OCI_PRIVATE_KEY_FILENAME: ${{ secrets.OCI_PRIVATE_KEY }}
+          # Dosya yolunu artık manuel olarak oluşturduğumuz dosyaya yönlendiriyoruz
+          OCI_PRIVATE_KEY_FILENAME: ./private_key.pem
           OCI_SUBNET_ID: ${{ secrets.OCI_SUBNET_ID }}
           OCI_IMAGE_ID: ${{ secrets.OCI_IMAGE_ID }}
           OCI_SSH_PUBLIC_KEY: ${{ secrets.OCI_SSH_PUBLIC_KEY }}
