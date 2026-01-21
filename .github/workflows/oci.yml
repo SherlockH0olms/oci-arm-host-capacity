@@ -1,4 +1,4 @@
-name: Oracle ARM Hunter
+name: Oracle ARM Hunter (Debug Mode)
 
 on:
   workflow_dispatch:
@@ -20,6 +20,16 @@ jobs:
       - name: Install Dependencies
         run: composer install --no-dev
 
+      - name: 🔍 BILGI KONTROLU (DEBUG)
+        run: |
+          echo "--- DEBUG BASLADI ---"
+          if [ -z "${{ secrets.OCI_USER_OCID }}" ]; then echo "❌ HATA: OCI_USER_OCID bos!"; else echo "✅ OCI_USER_OCID dolu"; fi
+          if [ -z "${{ secrets.OCI_TENANCY_OCID }}" ]; then echo "❌ HATA: OCI_TENANCY_OCID bos!"; else echo "✅ OCI_TENANCY_OCID dolu"; fi
+          if [[ "${{ secrets.OCI_FINGERPRINT }}" != *":"* ]]; then echo "❌ HATA: Fingerprint formatı yanlış! (iki nokta : içermeli)"; else echo "✅ Fingerprint formatı doğru"; fi
+          if [[ "${{ secrets.OCI_PRIVATE_KEY }}" != *"BEGIN"* ]]; then echo "❌ HATA: Private Key formatı yanlış! (BEGIN satırı eksik)"; else echo "✅ Private Key formatı doğru"; fi
+          echo "Bölge: ${{ secrets.OCI_REGION }}"
+          echo "--- DEBUG BITTI ---"
+
       - name: Create Private Key File
         run: |
           echo "${{ secrets.OCI_PRIVATE_KEY }}" > private_key.pem
@@ -37,7 +47,6 @@ jobs:
           OCI_IMAGE_ID: ${{ secrets.OCI_IMAGE_ID }}
           OCI_SSH_PUBLIC_KEY: ${{ secrets.OCI_SSH_PUBLIC_KEY }}
           OCI_AVAILABILITY_DOMAIN: ${{ secrets.OCI_AVAILABILITY_DOMAIN }}
-          # Burası çok önemli, az önce hata aldığın secret'ı buraya bağladık:
           OCI_COMPARTMENT_ID: ${{ secrets.OCI_COMPARTMENT_ID }}
           OCI_SHAPE: VM.Standard.A1.Flex
           OCI_OCPUS: 4
