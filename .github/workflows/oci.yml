@@ -18,7 +18,7 @@ jobs:
           php-version: '8.3' # Güncel PHP sürümü
 
       - name: Install Dependencies
-        run: composer install --no-dev # Gereksiz paketleri yüklemez
+        run: composer install --no-dev # Bağımlılıkların yüklenmesi zorunludur
 
       - name: Run Script
         run: php index.php
@@ -27,8 +27,9 @@ jobs:
           OCI_USER_ID: ${{ secrets.OCI_USER_OCID }}
           OCI_TENANCY_ID: ${{ secrets.OCI_TENANCY_OCID }}
           OCI_KEY_FINGERPRINT: ${{ secrets.OCI_FINGERPRINT }}
-          # Burası kritik: DOSYA yerine METİN içeriği olarak gönderiyoruz
+          # Hataları önlemek için hem içerik hem dosya adı değişkenlerini aynı anda gönderiyoruz
           OCI_PRIVATE_KEY_CONTENTS: ${{ secrets.OCI_PRIVATE_KEY }} 
+          OCI_PRIVATE_KEY_FILENAME: ${{ secrets.OCI_PRIVATE_KEY }}
           OCI_SUBNET_ID: ${{ secrets.OCI_SUBNET_ID }}
           OCI_IMAGE_ID: ${{ secrets.OCI_IMAGE_ID }}
           OCI_SSH_PUBLIC_KEY: ${{ secrets.OCI_SSH_PUBLIC_KEY }}
